@@ -24,8 +24,19 @@ def featurize_data(
     data: List[DataPoint], feature_types: Set[str]
 ) -> List[DataPointWithFeatures]:
     """Add features to each datapoint based on feature types"""
-    # TODO: Implement this!
-    raise NotImplementedError
+    # create featurizer function from feature types
+    featurizer = make_featurize(feature_types)
+    result = []
+    for datapoint in data:
+        # extract features from text and create new datapoint with features
+        features = featurizer(datapoint.text)
+        result.append(DataPointWithFeatures(
+            id=datapoint.id,
+            text=datapoint.text,
+            label=datapoint.label,
+            features=features
+        ))
+    return result
 
 
 class PerceptronModel:
