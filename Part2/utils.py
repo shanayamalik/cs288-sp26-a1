@@ -21,13 +21,17 @@ class DataPoint:
     text: str
     label: str | None
 
-
 def read_labeled_data(
     data_filename: str, labels_filename: str
 ) -> List[DataPoint]:
-    # TODO: implement this! Expected # of lines: <10
-    raise NotImplementedError
-
+    data_df = pd.read_csv(data_filename)
+    labels_df = pd.read_csv(labels_filename)
+    # merge data and labels on the id column
+    merged = data_df.merge(labels_df, on="id")
+    result = []
+    for _, row in merged.iterrows():
+        result.append(DataPoint(id=row["id"], text=row["text"], label=str(row["label"])))
+    return result
 
 def read_unlabeled_data(data_filename: str) -> List[DataPoint]:
     # TODO: implement this! Expected # of lines: <10
