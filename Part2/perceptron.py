@@ -89,8 +89,15 @@ class PerceptronModel:
             prediction: The predicted label.
             lr: Learning rate.
         """
-        # TODO: Implement this! Expected # of lines: <10
-        raise NotImplementedError
+        # increase correct label weights, decrease predicted label weights
+        true_label = datapoint.label
+        for feature, value in datapoint.features.items():
+            # increase weight for true label
+            true_key = self._get_weight_key(feature, true_label)
+            self.weights[true_key] += lr * value
+            # decrease weight for predicted label
+            pred_key = self._get_weight_key(feature, prediction)
+            self.weights[pred_key] -= lr * value
 
     def train(
         self,
