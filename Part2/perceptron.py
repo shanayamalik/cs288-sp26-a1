@@ -147,8 +147,17 @@ class PerceptronModel:
         Returns:
             accuracy (float): The accuracy of the model on the data.
         """
-        # TODO: Implement this!
-        raise NotImplementedError
+        # make predictions for all datapoints and save it
+        predictions = [self.predict(datapoint) for datapoint in data]
+        if save_path is not None:
+            save_results(data, predictions, save_path)
+        
+        # calculate accuracy if labels exist
+        labels = [datapoint.label for datapoint in data]
+        if labels[0] is not None:   
+            return accuracy(predictions, labels)
+        else:
+            return 0.0  # unlabeled test data
 
 
 if __name__ == "__main__":
