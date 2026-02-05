@@ -34,8 +34,12 @@ def read_labeled_data(
     return result
 
 def read_unlabeled_data(data_filename: str) -> List[DataPoint]:
-    # TODO: implement this! Expected # of lines: <10
-    raise NotImplementedError
+    data_df = pd.read_csv(data_filename)
+    result = []
+    for _, row in data_df.iterrows():
+        # no label for test data, so set to none
+        result.append(DataPoint(id=row["id"], text=row["text"], label=None))
+    return result
 
 
 def load_data(
