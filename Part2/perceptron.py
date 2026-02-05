@@ -116,8 +116,17 @@ class PerceptronModel:
             num_epochs: Number of training epochs.
             lr: Learning rate.
         """
-        # TODO: Implement this!
-        raise NotImplementedError
+        # learn labels from training data
+        for datapoint in training_data:
+            if datapoint.label is not None:
+                self.labels.add(datapoint.label)
+        
+        # training loop and only update if the prediction is wrong 
+        for epoch in range(num_epochs):
+            for datapoint in training_data:
+                prediction = self.predict(datapoint)
+                if prediction != datapoint.label:
+                    self.update_parameters(datapoint, prediction, lr)
 
     def save_weights(self, path: str) -> None:
         with open(path, "w") as f:
