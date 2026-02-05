@@ -76,8 +76,8 @@ class PerceptronModel:
         Returns:
             The predicted class.
         """
-        # TODO: Implement this! Expected # of lines: <5
-        raise NotImplementedError
+        # return the label with the highest score
+        return max(self.labels, key=lambda label: self.score(datapoint, label))
 
     def update_parameters(
         self, datapoint: DataPointWithFeatures, prediction: str, lr: float
