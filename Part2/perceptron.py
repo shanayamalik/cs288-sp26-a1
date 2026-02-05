@@ -60,8 +60,12 @@ class PerceptronModel:
         Returns:
             The output score.
         """
-        # TODO: Implement this! Expected # of lines: <10
-        raise NotImplementedError
+        # Ssum up weights for all features 
+        total = 0.0
+        for feature, value in datapoint.features.items():
+            weight_key = self._get_weight_key(feature, label)
+            total += self.weights[weight_key] * value
+        return total
 
     def predict(self, datapoint: DataPointWithFeatures) -> str:
         """Predicts a label for an input.
