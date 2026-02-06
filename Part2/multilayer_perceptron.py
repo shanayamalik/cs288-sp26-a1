@@ -140,8 +140,17 @@ class MultilayerPerceptronModel(nn.Module):
         """
         super().__init__()
         self.padding_index = padding_index
-        # TODO: Implement this!
-        raise NotImplementedError
+        self.num_classes = num_classes
+        
+        # hyperparameters
+        embed_dim = 128
+        hidden_dim = 128
+        
+        # layers
+        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=padding_index)
+        self.fc1 = nn.Linear(embed_dim, hidden_dim)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_dim, num_classes)
 
     def forward(
         self, input_features_b_l: torch.Tensor, input_length_b: torch.Tensor
