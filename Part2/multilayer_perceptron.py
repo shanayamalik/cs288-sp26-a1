@@ -238,9 +238,23 @@ class Trainer:
             total_loss = 0
             dataloader = DataLoader(training_data, batch_size=4, shuffle=True)
             for inputs_b_l, lengths_b, labels_b in tqdm(dataloader):
-                # TODO: Implement this!
-                raise NotImplementedError
-            per_dp_loss = 0
+                # zero gradients
+                optimizer.zero_grad()
+                
+                # forward pass, compute loss, and backward pass
+                outputs_b_c = self.model(inputs_b_l, lengths_b)
+                
+                loss_fn = nn.CrossEntropyLoss()
+                loss = loss_fn(outputs_b_c, labels_b)
+                
+                loss.backward()
+                
+                optimizer.step()
+                
+                # accumulate loss
+                total_loss += loss.item()
+            
+            per_dp_loss = total_loss / len(training_data)
 
             self.model.eval()
             val_acc = self.evaluate(val_data)
