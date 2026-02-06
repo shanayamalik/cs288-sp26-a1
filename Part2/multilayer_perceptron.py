@@ -123,7 +123,12 @@ class BOWDataset(Dataset):
         # convert to tensors
         features_l = torch.tensor(token_ids, dtype=torch.int64)
         length = torch.tensor(actual_length, dtype=torch.int64)
-        label = torch.tensor(self.label2id[dp.label], dtype=torch.int64)
+        
+        # handle None labels (test data)
+        if dp.label is None:
+            label = torch.tensor(-1, dtype=torch.int64)   
+        else:
+            label = torch.tensor(self.label2id[dp.label], dtype=torch.int64)
         
         return features_l, length, label
 
