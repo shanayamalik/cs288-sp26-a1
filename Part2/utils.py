@@ -1,6 +1,7 @@
 """Utility functions for both perceptron and MLP models."""
 
 import enum
+import os
 import random
 from dataclasses import dataclass
 from typing import Any, List, Tuple
@@ -57,6 +58,8 @@ def load_data(
     dev = read_labeled_data(f_dev_data, f_dev_labels)
     test = read_unlabeled_data(f_test_data)
 
+    # TODO: ask about what TA meant that it would be ideal/expected to seed our models
+    
     # Shuffle the training data with a fixed seed.
     random.seed(0)
     random.shuffle(train)
