@@ -10,11 +10,11 @@ from utils import DataType, load_data
 
 
 def main():
-    # hyperparameters  
+    # hyperparameters (tuned for best dev performance)
     data_type = DataType.SST2
-    feature_types = {"bow"}  # start with bag-of-words baseline
-    num_epochs = 3
-    learning_rate = 0.1
+    feature_types = {"bow", "sentiment", "punct", "negation"}
+    num_epochs = 7
+    learning_rate = 0.2
     
     print("Loading SST-2 data...")
     train_data, val_data, dev_data, test_data = load_data(data_type)
