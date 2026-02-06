@@ -79,7 +79,6 @@ class NegationFeatures(FeatureMap):
         
         return self.prefix_with_name(features)
 
-
 class PunctuationFeatures(FeatureMap):
     name = "punct"
 

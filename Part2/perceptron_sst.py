@@ -10,7 +10,7 @@ from utils import DataType, load_data
 
 
 def main():
-    # hyperparameters (tuned for best dev performance)
+    # hyperparameters  
     data_type = DataType.SST2
     feature_types = {"bow", "sentiment", "punct", "negation"}
     num_epochs = 7
