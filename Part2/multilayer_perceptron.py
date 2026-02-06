@@ -164,9 +164,25 @@ class MultilayerPerceptronModel(nn.Module):
         Returns:
             output_b_c: The output of the model.
         """
-        # TODO: Implement this!
-        raise NotImplementedError
-
+        # get embeddings (batch_size, seq_length, embed_dim)
+        embeddings_b_l_d = self.embedding(input_features_b_l)
+        
+        # Create mask for non-padding tokens (batch_size, seq_length)
+        seq_length = input_features_b_l.size(1)
+        mask = torch.arange(seq_length, device=input_features_b_l.device).unsqueeze(0) < input_length_b.unsqueeze(1)
+        mask = mask.unsqueeze(2).float()  # (batch_size, seq_length, 1)
+        
+        # apply mask and sum embeddings, and divide by actual lengths to get mean
+        masked_embeddings = embeddings_b_l_d * mask
+        summed_embeddings = masked_embeddings.sum(dim=1)  # (batch_size, embed_dim)
+        lengths_clamped = input_length_b.clamp(min=1).unsqueeze(1).float()  # (batch_size, 1)
+        pooled_b_d = summed_embeddings / lengths_clamped  # (batch_size, embed_dim)
+        
+        hidden = self.fc1(pooled_b_d)
+        hidden = self.relu(hidden)
+        output_b_c = self.fc2(hidden)
+        
+        return output_b_c
 
 class Trainer:
     def __init__(self, model: nn.Module):
