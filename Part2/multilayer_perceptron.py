@@ -200,8 +200,19 @@ class Trainer:
         """
         all_predictions = []
         dataloader = DataLoader(data, batch_size=32, shuffle=False)
-        # TODO: Implement this!
-        raise NotImplementedError
+        
+        self.model.eval()
+        with torch.no_grad():
+            for inputs_b_l, lengths_b, _ in dataloader:
+                # forward pass
+                outputs_b_c = self.model(inputs_b_l, lengths_b)
+                
+                # get predicted classes (argmax)
+                predictions_b = torch.argmax(outputs_b_c, dim=1)
+            
+                all_predictions.extend(predictions_b.tolist())
+        
+        return all_predictions
 
     def evaluate(self, data: BOWDataset) -> float:
         """Evaluates the model on a dataset.
@@ -212,8 +223,28 @@ class Trainer:
         Returns:
             The accuracy of the model.
         """
-        # TODO: Implement this!
-        raise NotImplementedError
+        all_predictions = []
+        all_labels = []
+        dataloader = DataLoader(data, batch_size=32, shuffle=False)
+        
+        self.model.eval()
+        with torch.no_grad():
+            for inputs_b_l, lengths_b, labels_b in dataloader:
+                # forward pass
+                outputs_b_c = self.model(inputs_b_l, lengths_b)
+                
+                # get predicted classes (argmax)
+                predictions_b = torch.argmax(outputs_b_c, dim=1)
+                
+                # collect predictions and labels
+                all_predictions.extend(predictions_b.tolist())
+                all_labels.extend(labels_b.tolist())
+        
+        # calculate accuracy
+        correct = sum(p == l for p, l in zip(all_predictions, all_labels))
+        accuracy = correct / len(all_labels)
+        
+        return accuracy
 
     def train(
         self,
