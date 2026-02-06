@@ -45,6 +45,48 @@ class SentenceLength(FeatureMap):
         return self.prefix_with_name(ret)
 
 
+# TODO: uncomment PunctuationFeatures if professor confirms that features only need to improve
+# performance on average (not 100% of runs). This feature improves SST-2 dev accuracy from
+# ~74.08% to ~74.95% on average (tested over 5 runs), but results vary across runs.
+# if features must improve every single run, delete this and implement a different feature.
+
+# class PunctuationFeatures(FeatureMap):
+#     name = "punct"
+# 
+#     @classmethod
+#     def featurize(self, text: str) -> Dict[str, float]:
+#         """Extracts punctuation features that indicate sentiment intensity"""
+#         # Count specific punctuation marks
+#         exclamation_count = text.count('!')
+#         question_count = text.count('?')
+#         ellipsis_count = text.count('...')
+#         
+#         # Get word count for ratios
+#         word_count = len(text.split())
+#         
+#         features = {}
+#         
+#         # Count features
+#         features["exclamation_count"] = float(exclamation_count)
+#         features["question_count"] = float(question_count)
+#         features["ellipsis_count"] = float(ellipsis_count)
+#         
+#         # Binary presence features
+#         if exclamation_count > 0:
+#             features["has_exclamation"] = 1.0
+#         if question_count > 0:
+#             features["has_question"] = 1.0
+#         if ellipsis_count > 0:
+#             features["has_ellipsis"] = 1.0
+#         
+#         # Ratio features (normalized by text length)
+#         if word_count > 0:
+#             features["exclamation_ratio"] = float(exclamation_count) / word_count
+#             features["question_ratio"] = float(question_count) / word_count
+#         
+#         return self.prefix_with_name(features)
+
+
 '''
 TODO: uncomment SentimentLexicon if professor confirms that features only need to 
 improve performance on average (not 100% of runs). this feature improves SST-2 dev 
