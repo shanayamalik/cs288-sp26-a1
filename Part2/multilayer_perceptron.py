@@ -109,8 +109,23 @@ class BOWDataset(Dataset):
         All of have type torch.int64.
         """
         dp: DataPoint = self.data[idx]
-        # TODO: Implement this! Expected # of lines: ~20
-        raise NotImplementedError
+        
+        # tokenize the text and get length before padding/truncation
+        token_ids = self.tokenizer.tokenize(dp.text)
+        actual_length = min(len(token_ids), self.max_length)
+        
+        # pad or truncate to max_length
+        if len(token_ids) < self.max_length:
+            token_ids = token_ids + [self.tokenizer.TOK_PADDING_INDEX] * (self.max_length - len(token_ids))
+        else:
+            token_ids = token_ids[:self.max_length]
+        
+        # convert to tensors
+        features_l = torch.tensor(token_ids, dtype=torch.int64)
+        length = torch.tensor(actual_length, dtype=torch.int64)
+        label = torch.tensor(self.label2id[dp.label], dtype=torch.int64)
+        
+        return features_l, length, label
 
 
 class MultilayerPerceptronModel(nn.Module):
