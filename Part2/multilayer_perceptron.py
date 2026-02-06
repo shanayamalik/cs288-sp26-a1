@@ -40,9 +40,15 @@ class Tokenizer:
     TOK_PADDING_INDEX = 0
     STOP_WORDS = set(pd.read_csv("stopwords.txt", header=None)[0])
 
+    # Lowercase, tokenize, and remove stopwords. 
     def _pre_process_text(self, text: str) -> List[str]:
-        # TODO: Implement this! Expected # of lines: 5~10
-        raise NotImplementedError
+        # lowercase and split into words
+        words = text.lower().split()
+        
+        # remove stopwords
+        tokens = [word for word in words if word not in self.STOP_WORDS]
+        
+        return tokens
 
     def __init__(self, data: List[DataPoint], max_vocab_size: int = None):
         corpus = " ".join([d.text for d in data])
@@ -54,15 +60,21 @@ class Tokenizer:
         self.token2id["<PAD>"] = Tokenizer.TOK_PADDING_INDEX
         self.id2token = {i: t for t, i in self.token2id.items()}
 
+    # convert text to list of token IDs. 
     def tokenize(self, text: str) -> List[int]:
-        # TODO: Implement this! Expected # of lines: 5~10
-        raise NotImplementedError
+        # preprocess to get tokens
+        tokens = self._pre_process_text(text)
+        
+        # convert tokens to IDs, using padding index for unknown tokens
+        token_ids = [self.token2id.get(token, self.TOK_PADDING_INDEX) for token in tokens]
+        
+        return token_ids
 
 
 def get_label_mappings(
     data: List[DataPoint],
 ) -> Tuple[Dict[str, int], Dict[int, str]]:
-    """Reads the labels file and returns the mapping."""
+    # reads the labels file and returns the mapping
     labels = list(set([d.label for d in data]))
     label2id = {label: index for index, label in enumerate(labels)}
     id2label = {index: label for index, label in enumerate(labels)}
