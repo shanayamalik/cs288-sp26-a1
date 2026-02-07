@@ -394,7 +394,66 @@ class TechnicalTerms(FeatureMap):
         return self.prefix_with_name(features)
 
 
-FEATURE_CLASSES_MAP = {c.name: c for c in [BagOfWords, SentenceLength, NegationFeatures, PunctuationFeatures, SentimentLexicon, TechnicalTerms]}
+class QuotedTextRatio(FeatureMap):
+    name = "quoted"
+    
+    @classmethod
+    def featurize(self, text: str) -> Dict[str, float]:
+        """Detects quoted text patterns (lines starting with '>') common in email discussions"""
+        features = {}
+        
+        lines = text.split('\n')
+        total_lines = len(lines) if len(lines) > 0 else 1
+        
+        # Count quoted lines at different depths
+        single_quote_lines = 0  # Lines starting with ">"
+        double_quote_lines = 0  # Lines starting with ">>"
+        triple_quote_lines = 0  # Lines starting with ">>>"
+        
+        for line in lines:
+            stripped = line.lstrip()
+            if stripped.startswith('>>>'):
+                triple_quote_lines += 1
+            elif stripped.startswith('>>'):
+                double_quote_lines += 1
+            elif stripped.startswith('>'):
+                single_quote_lines += 1
+        
+        total_quoted_lines = single_quote_lines + double_quote_lines + triple_quote_lines
+        
+        # Ratio of quoted vs total lines
+        if total_lines > 0:
+            quote_ratio = float(total_quoted_lines) / total_lines
+            features["quote_ratio"] = quote_ratio
+            
+            # Binned categories for different discussion patterns
+            if quote_ratio == 0:
+                features["no_quotes"] = 1.0  # Original post, not a reply
+            elif quote_ratio < 0.2:
+                features["few_quotes"] = 1.0  # Mostly original content
+            elif quote_ratio < 0.5:
+                features["some_quotes"] = 1.0  # Balanced discussion
+            else:
+                features["many_quotes"] = 1.0  # Heavily quoted (deep discussion)
+        
+        # Quote depth features (indicates discussion complexity)
+        if total_quoted_lines > 0:
+            features["has_quotes"] = 1.0
+            
+            if single_quote_lines > 0:
+                features["single_depth"] = float(single_quote_lines) / total_lines
+            if double_quote_lines > 0:
+                features["double_depth"] = float(double_quote_lines) / total_lines
+            if triple_quote_lines > 0:
+                features["triple_depth"] = float(triple_quote_lines) / total_lines
+        
+        # Count of quoted lines (absolute, capped and normalized)
+        features["quoted_lines"] = min(float(total_quoted_lines) / 50.0, 1.0)
+        
+        return self.prefix_with_name(features)
+
+
+FEATURE_CLASSES_MAP = {c.name: c for c in [BagOfWords, SentenceLength, NegationFeatures, PunctuationFeatures, SentimentLexicon, TechnicalTerms, QuotedTextRatio]}
 
 
 def make_featurize(

@@ -12,7 +12,7 @@ from utils import DataType, load_data
 def main():
     # hyperparameters  
     data_type = DataType.NEWSGROUPS
-    feature_types = {"bow", "technical"}  # bag-of-words + technical terms
+    feature_types = {"bow", "technical", "quoted"}  # technical + quoted combined
     num_epochs = 3
     learning_rate = 0.1
     
