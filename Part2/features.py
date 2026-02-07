@@ -202,7 +202,199 @@ class SentimentLexicon(FeatureMap):
         return self.prefix_with_name(features)
 
 
-FEATURE_CLASSES_MAP = {c.name: c for c in [BagOfWords, SentenceLength, NegationFeatures, PunctuationFeatures, SentimentLexicon]}
+class TechnicalTerms(FeatureMap):
+    name = "technical"
+    
+    # Expanded domain-specific vocabulary for 20 newsgroups categories
+    
+    # comp.* groups (computers)
+    COMP_GRAPHICS = {
+        "graphics", "image", "rendering", "3d", "polygon", "pixel", "resolution",
+        "opengl", "gif", "jpeg", "tiff", "bitmap", "raytracing", "animation"
+    }
+    
+    COMP_OS_WINDOWS = {
+        "windows", "win3", "win31", "dos", "msdos", "microsoft", "ini", "driver",
+        "dll", "exe", "bat", "config", "autoexec", "winword", "excel"
+    }
+    
+    COMP_SYS_IBM_MAC = {
+        "ibm", "pc", "mac", "apple", "macintosh", "powerbook", "thinkpad",
+        "motherboard", "bios", "scsi", "ide", "floppy", "harddrive", "vga"
+    }
+    
+    COMP_WINDOWS_X = {
+        "xwindows", "x11", "motif", "openwindows", "xterm", "widget", "twm",
+        "xlib", "unix", "server", "display", "xview"
+    }
+    
+    # sci.* groups (science)
+    SCI_SPACE = {
+        "space", "nasa", "orbit", "satellite", "shuttle", "moon", "mars",
+        "launch", "rocket", "spacecraft", "astronaut", "mission", "jpl",
+        "payload", "venus", "jupiter", "telescope", "astronomy", "comet"
+    }
+    
+    SCI_ELECTRONICS = {
+        "circuit", "voltage", "resistor", "capacitor", "transistor", "diode",
+        "amplifier", "oscilloscope", "breadboard", "solder", "ic", "chip",
+        "pcb", "schematic", "breadboard", "multimeter"
+    }
+    
+    SCI_MED = {
+        "medical", "doctor", "patient", "disease", "symptom", "diagnosis",
+        "treatment", "hospital", "clinic", "medicine", "physician", "health",
+        "surgery", "therapy", "prescription", "medication"
+    }
+    
+    SCI_CRYPT = {
+        "encryption", "decrypt", "cipher", "cryptography", "rsa", "des",
+        "pgp", "privacy", "keypair", "plaintext", "ciphertext", "hash",
+        "secure", "nsa", "clipper", "escrow"
+    }
+    
+    # rec.* groups (recreation)
+    REC_AUTOS = {
+        "car", "auto", "vehicle", "engine", "transmission", "brake", "tire",
+        "dealer", "honda", "toyota", "ford", "bmw", "audi", "mustang",
+        "mazda", "nissan", "clutch", "horsepower", "turbo"
+    }
+    
+    REC_MOTORCYCLES = {
+        "motorcycle", "bike", "yamaha", "harley", "kawasaki", "suzuki",
+        "helmet", "rider", "ride", "touring", "cruiser", "sportbike"
+    }
+    
+    REC_SPORT_BASEBALL = {
+        "baseball", "pitcher", "batter", "homerun", "innings", "sox",
+        "yankees", "dodgers", "cubs", "mets", "braves", "batting", "rbi"
+    }
+    
+    REC_SPORT_HOCKEY = {
+        "hockey", "nhl", "puck", "goalie", "penguins", "rangers", "bruins",
+        "maple", "canadiens", "playoff", "stanley", "cup", "rink"
+    }
+    
+    # talk.* groups (debate/politics)
+    TALK_POLITICS_GUNS = {
+        "gun", "firearm", "weapon", "rifle", "handgun", "ammunition",
+        "nra", "amendment", "second", "militia", "atf", "assault"
+    }
+    
+    TALK_POLITICS_MIDEAST = {
+        "israel", "israeli", "arab", "palestinian", "lebanon", "syria",
+        "egypt", "jordan", "gaza", "westbank", "peace", "plo", "jews"
+    }
+    
+    TALK_POLITICS_MISC = {
+        "clinton", "congress", "senate", "legislation", "vote", "election",
+        "democrat", "republican", "tax", "budget", "policy"
+    }
+    
+    TALK_RELIGION_MISC = {
+        "god", "jesus", "christ", "christian", "bible", "church", "faith",
+        "prayer", "worship", "scripture", "salvation", "sin", "heaven"
+    }
+    
+    # alt.atheism
+    ALT_ATHEISM = {
+        "atheist", "atheism", "secular", "agnostic", "deity", "theist",
+        "religion", "belief", "evidence", "rational", "logic"
+    }
+    
+    # soc.religion.christian
+    SOC_RELIGION = {
+        "gospel", "testament", "apostle", "disciple", "baptism", "communion",
+        "resurrection", "crucifixion", "trinity", "catholic", "protestant"
+    }
+    
+    # misc.forsale
+    MISC_FORSALE = {
+        "sale", "sell", "selling", "forsale", "price", "offer", "shipping",
+        "condition", "mint", "obo", "asking", "interested", "email"
+    }
+    
+    @classmethod
+    def featurize(self, text: str) -> Dict[str, float]:
+        """Detects technical/domain-specific terms for newsgroup classification"""
+        # lowercase and tokenize
+        tokens = set(word.lower().strip(",.!?;:\"'()[]{}") for word in text.split())
+        
+        features = {}
+        
+        # count terms from each specific newsgroup category
+        comp_graphics_count = sum(1 for token in tokens if token in self.COMP_GRAPHICS)
+        comp_os_windows_count = sum(1 for token in tokens if token in self.COMP_OS_WINDOWS)
+        comp_sys_count = sum(1 for token in tokens if token in self.COMP_SYS_IBM_MAC)
+        comp_windows_x_count = sum(1 for token in tokens if token in self.COMP_WINDOWS_X)
+        
+        sci_space_count = sum(1 for token in tokens if token in self.SCI_SPACE)
+        sci_electronics_count = sum(1 for token in tokens if token in self.SCI_ELECTRONICS)
+        sci_med_count = sum(1 for token in tokens if token in self.SCI_MED)
+        sci_crypt_count = sum(1 for token in tokens if token in self.SCI_CRYPT)
+        
+        rec_autos_count = sum(1 for token in tokens if token in self.REC_AUTOS)
+        rec_motorcycles_count = sum(1 for token in tokens if token in self.REC_MOTORCYCLES)
+        rec_baseball_count = sum(1 for token in tokens if token in self.REC_SPORT_BASEBALL)
+        rec_hockey_count = sum(1 for token in tokens if token in self.REC_SPORT_HOCKEY)
+        
+        talk_guns_count = sum(1 for token in tokens if token in self.TALK_POLITICS_GUNS)
+        talk_mideast_count = sum(1 for token in tokens if token in self.TALK_POLITICS_MIDEAST)
+        talk_politics_count = sum(1 for token in tokens if token in self.TALK_POLITICS_MISC)
+        talk_religion_count = sum(1 for token in tokens if token in self.TALK_RELIGION_MISC)
+        
+        alt_atheism_count = sum(1 for token in tokens if token in self.ALT_ATHEISM)
+        soc_religion_count = sum(1 for token in tokens if token in self.SOC_RELIGION)
+        misc_forsale_count = sum(1 for token in tokens if token in self.MISC_FORSALE)
+        
+        # add features for each category (only if present)
+        if comp_graphics_count > 0:
+            features["comp_graphics"] = float(comp_graphics_count)
+        if comp_os_windows_count > 0:
+            features["comp_windows"] = float(comp_os_windows_count)
+        if comp_sys_count > 0:
+            features["comp_sys"] = float(comp_sys_count)
+        if comp_windows_x_count > 0:
+            features["comp_x11"] = float(comp_windows_x_count)
+            
+        if sci_space_count > 0:
+            features["sci_space"] = float(sci_space_count)
+        if sci_electronics_count > 0:
+            features["sci_electronics"] = float(sci_electronics_count)
+        if sci_med_count > 0:
+            features["sci_med"] = float(sci_med_count)
+        if sci_crypt_count > 0:
+            features["sci_crypt"] = float(sci_crypt_count)
+            
+        if rec_autos_count > 0:
+            features["rec_autos"] = float(rec_autos_count)
+        if rec_motorcycles_count > 0:
+            features["rec_motorcycles"] = float(rec_motorcycles_count)
+        if rec_baseball_count > 0:
+            features["rec_baseball"] = float(rec_baseball_count)
+        if rec_hockey_count > 0:
+            features["rec_hockey"] = float(rec_hockey_count)
+            
+        if talk_guns_count > 0:
+            features["talk_guns"] = float(talk_guns_count)
+        if talk_mideast_count > 0:
+            features["talk_mideast"] = float(talk_mideast_count)
+        if talk_politics_count > 0:
+            features["talk_politics"] = float(talk_politics_count)
+        if talk_religion_count > 0:
+            features["talk_religion"] = float(talk_religion_count)
+            
+        if alt_atheism_count > 0:
+            features["alt_atheism"] = float(alt_atheism_count)
+        if soc_religion_count > 0:
+            features["soc_religion"] = float(soc_religion_count)
+        if misc_forsale_count > 0:
+            features["misc_forsale"] = float(misc_forsale_count)
+        
+        return self.prefix_with_name(features)
+
+
+FEATURE_CLASSES_MAP = {c.name: c for c in [BagOfWords, SentenceLength, NegationFeatures, PunctuationFeatures, SentimentLexicon, TechnicalTerms]}
 
 
 def make_featurize(
