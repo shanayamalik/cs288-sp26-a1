@@ -1,7 +1,6 @@
 """Batching benchmark script for MLP.
 
 Measures wall-time speed (seconds per 1000 examples) for different batch sizes.
-Run this on Google Colab with GPU enabled.
 """
 
 import time
@@ -102,6 +101,7 @@ def main():
         vocab_size=len(tokenizer.token2id),
         num_classes=len(label2id),
         padding_index=tokenizer.TOK_PADDING_INDEX,
+        activation="relu",  # Using ReLU for benchmarking
     )
     model = model.to(device)
     model.eval()

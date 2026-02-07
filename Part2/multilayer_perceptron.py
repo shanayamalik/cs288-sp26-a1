@@ -136,12 +136,14 @@ class BOWDataset(Dataset):
 class MultilayerPerceptronModel(nn.Module):
     """Multi-layer perceptron model for classification."""
 
-    def __init__(self, vocab_size: int, num_classes: int, padding_index: int):
+    def __init__(self, vocab_size: int, num_classes: int, padding_index: int, activation: str = "relu"):
         """Initializes the model.
 
         Inputs:
             num_classes (int): The number of classes.
             vocab_size (int): The size of the vocabulary.
+            padding_index (int): The index for padding tokens.
+            activation (str): Activation function to use ('relu', 'sigmoid', or 'tanh').
         """
         super().__init__()
         self.padding_index = padding_index
@@ -154,7 +156,17 @@ class MultilayerPerceptronModel(nn.Module):
         # layers
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=padding_index)
         self.fc1 = nn.Linear(embed_dim, hidden_dim)
-        self.relu = nn.ReLU()
+        
+        # activation function selection
+        if activation == "relu":
+            self.activation = nn.ReLU()
+        elif activation == "sigmoid":
+            self.activation = nn.Sigmoid()
+        elif activation == "tanh":
+            self.activation = nn.Tanh()
+        else:
+            raise ValueError(f"Unsupported activation function: {activation}. Choose 'relu', 'sigmoid', or 'tanh'.")
+        
         self.fc2 = nn.Linear(hidden_dim, num_classes)
 
     def forward(
@@ -184,7 +196,7 @@ class MultilayerPerceptronModel(nn.Module):
         pooled_b_d = summed_embeddings / lengths_clamped  # (batch_size, embed_dim)
         
         hidden = self.fc1(pooled_b_d)
-        hidden = self.relu(hidden)
+        hidden = self.activation(hidden)
         output_b_c = self.fc2(hidden)
         
         return output_b_c
@@ -315,6 +327,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "-l", "--learning_rate", type=float, default=0.001, help="Learning rate"
     )
+    parser.add_argument(
+        "-a", "--activation", type=str, default="relu", 
+        choices=["relu", "sigmoid", "tanh"],
+        help="Activation function to use"
+    )
     args = parser.parse_args()
 
     num_epochs = args.epochs
@@ -338,6 +355,7 @@ if __name__ == "__main__":
         vocab_size=len(tokenizer.token2id),
         num_classes=len(label2id),
         padding_index=Tokenizer.TOK_PADDING_INDEX,
+        activation=args.activation,
     )
 
     trainer = Trainer(model)
